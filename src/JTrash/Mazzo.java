@@ -26,15 +26,11 @@ public class Mazzo {
 
     private void creaMazzo(){
         for (Carta.Valore v : Carta.Valore.values()) {
-            if (v != Carta.Valore.JOKER1 && v != Carta.Valore.JOKER2) {
+            {
                 for (Carta.Seme s : Carta.Seme.values()) {
                     Carta c = new Carta(v, s);
                     mazzo.add(c);
                 }
-            }
-            else{
-                Carta c = new Carta(v);
-                mazzo.add(c);
             }
         }
     }
@@ -53,6 +49,14 @@ public class Mazzo {
 
     public Carta pesca(){
         return mazzo.remove(mazzo.size()-1);
+    }
+
+    public ArrayList<Carta> pesca(int n){
+        ArrayList<Carta> carte = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            carte.add(mazzo.remove(mazzo.size()-1));
+        }
+        return carte;
     }
 
     public int size(){

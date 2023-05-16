@@ -1,6 +1,9 @@
 package JTrash;
 
 import java.util.ArrayList;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
 
 /**
  *  Classe che si occupa della gestione del gioco.
@@ -11,26 +14,22 @@ import java.util.ArrayList;
 public class Gioco {
 
     /**
-     * numero di giocatori che il costruttore userà per costruire la sessione di gioco
+     * giocatore corrente
      */
-    private int nGiocatori;
+    private int currentPlayer;
 
     /**
-     * rappresenta un'ArrayList, dove ogni indice rappresenta un giocatore, dove ogni giocatore
-     * avrà la sua mano di gioco
+     * numero di giocatori
      */
-    private ArrayList<ArrayList<Carta>> giocatori;
-
+    private Giocatore[] players;
 
     /**
      * rappresenta il mazzo da gioco
      */
     private Mazzo mazzo;
 
-    /**
-     * variabile che serve per inizializzare la mano di ogni giocatore
-     */
-    private ArrayList<Carta> mano;
+
+    private ArrayList<ArrayList<Carta>> playerHand;
 
     /**
      * Array che rappresenta la pila scarti del gioco
@@ -41,192 +40,103 @@ public class Gioco {
     /**
      * Costruttore della sessione di gioco, al suo interno inoltre vi è tutta la logica
      * che concerne il gioco Trash e tutte le varie casistiche e regole di gioco.
-     * @param nGiocatori int : numero di giocatori all'interno della sessione (massimo 4)
-     *                    se nGiocatori = 1 oppure nGiocatori > 4 viene sollevata un'eccezione
+     * @param players Giocatore[] : rappresenta un array di giocatori per la sessione di gioco(massimo 4)
+     *                    se players.length = 1 oppure players.length > 4 viene sollevata un'eccezione
      */
-    public Gioco(int nGiocatori) {
-        this.nGiocatori = nGiocatori;
-        if (nGiocatori < 2 || nGiocatori > 4) {
+    public Gioco(Giocatore[] players) {
+        this.players = players;
+        if (players.length < 2 || players.length > 4) {
             throw new IllegalArgumentException("Numero di giocatori non valido, impossibile iniziare il gioco");
         }
-        giocatori = new ArrayList<>(nGiocatori);
+        /**
+         * rappresenta un'ArrayList, dove ogni indice rappresenta un giocatore, dove ogni giocatore
+         * avrà la sua mano di gioco
+         */
+        playerHand = new ArrayList<>(players.length);
         pilaScarti = new ArrayList<>();
-        if (nGiocatori == 2) {
+        if (players.length == 2) {
             mazzo = new Mazzo(1);
         }
-        if (nGiocatori >= 3) {
+        if (players.length >= 3) {
             mazzo = new Mazzo(2);
         }
         mazzo.mischia();
-        for (int i = 0; i < nGiocatori; i++) {
-            mano = new ArrayList<>();
-            giocatori.add(mano);
-            for (int j = 0; j < 10; j++) {
-                giocatori.get(i).add(mazzo.pesca());
-            }
+        currentPlayer = 0;
+        for (int i = 0; i < players.length; i++) {
+            ArrayList<Carta> mano = new ArrayList<>(mazzo.pesca(10));
+            playerHand.add(mano);
         }
+    }
 
-        int turno = 0;
+    public void start(Gioco game) {
+        Carta c = mazzo.pesca();
+        c.scopri();
+        while (true) {
+            if (currentPlayer == players.length) {
+                currentPlayer = 0;
+            }
+            
+            if(gameOver()){
+                System.out.println("Il giocatore " + players[currentPlayer].getNickname() + " ha vinto!");
+                break;
+            }
 
+            ArrayList<Carta> hand = playerHand.get(currentPlayer);
 
-
-        while(true) {
-            Carta c = mazzo.pesca();
-            c.scopri();
-
-            System.out.println(c);
-
-            switch (c.valore) {
-                //TODO 1: Fixare parte in cui il giocatore pesca un jack o una regina, quindi vi è uno scarto e si passa al prossimo giocatore
-                //TODO 2: aggiornare la variabile carta pescata, come fixare?
-                //TODO 3: inoltre implementare la parte in cui il giocatore pesca un re o un joker
-                case ASSO -> {
-                    Carta c2 = giocatori.get(turno).get(0);
+            switch (c.valore) {//TODO fixare il caso dove uno o piu' giocatori ha la carta c in mano
+                default -> {
+                    Carta c2 = playerHand.get(currentPlayer).get(c.valore.ordinal());
                     c2.scopri();
-                    if(c.valore.equals(c2.valore)){
+                    System.out.println(c);
+                    if (c.valore.equals(c2.valore)) {
                         pilaScarti.add(c);
-                        turno+=1;
+                        currentPlayer += 1;
+                        c = mazzo.pesca();
+                        c.scopri();
                         continue;
                     }
-                    giocatori.get(turno).set(0, c);
-                    System.out.println(giocatori.get(turno));
+                    playerHand.get(currentPlayer).set(c.valore.ordinal(), c);
+                    System.out.println(playerHand.get(currentPlayer));
                     System.out.println(c2);
-                    c=c2;
-                }
-                case DUE -> {
-                    Carta c2 = giocatori.get(turno).get(1);
-                    c2.scopri();
-                    if(c.valore.equals(c2.valore)){
-                        pilaScarti.add(c);
-                        turno+=1;
-                        continue;
-                    }
-                    giocatori.get(turno).set(1, c);
-                    System.out.println(giocatori.get(turno));
-                    System.out.println(c2);
-                    c=c2;
-                }
-                case TRE -> {
-                    Carta c2 = giocatori.get(turno).get(2);
-                    c2.scopri();
-                    if(c.valore.equals(c2.valore)){
-                        pilaScarti.add(c);
-                        turno+=1;
-                        continue;
-                    }
-                    giocatori.get(turno).set(2, c);
-                    System.out.println(giocatori.get(turno));
-                    System.out.println(c2);
-                    c=c2;
-                }
-                case QUATTRO -> {
-                    Carta c2 = giocatori.get(turno).get(3);
-                    c2.scopri();
-                    if(c.valore.equals(c2.valore)){
-                        pilaScarti.add(c);
-                        turno+=1;
-                        continue;
-                    }
-                    giocatori.get(turno).set(3, c);
-                    System.out.println(giocatori.get(turno));
-                    System.out.println(c2);
-                    c=c2;
-                }
-                case CINQUE -> {
-                    Carta c2 = giocatori.get(turno).get(4);
-                    c2.scopri();
-                    if(c.valore.equals(c2.valore)){
-                        pilaScarti.add(c);
-                        turno+=1;
-                        continue;
-                    }
-                    giocatori.get(turno).set(4, c);
-                    System.out.println(giocatori.get(turno));
-                    System.out.println(c2);
-                    c=c2;
-                }
-                case SEI -> {
-                    Carta c2 = giocatori.get(turno).get(5);
-                    c2.scopri();
-                    if(c.valore.equals(c2.valore)){
-                        pilaScarti.add(c);
-                        turno+=1;
-                        continue;
-                    }
-                    giocatori.get(turno).set(5, c);
-                    System.out.println(giocatori.get(turno));
-                    System.out.println(c2);
-                    c=c2;
-                }
-                case SETTE -> {
-                    Carta c2 = giocatori.get(turno).get(6);
-                    c2.scopri();
-                    if(c.valore.equals(c2.valore)){
-                        pilaScarti.add(c);
-                        turno+=1;
-                        continue;
-                    }
-                    giocatori.get(turno).set(6, c);
-                    System.out.println(giocatori.get(turno));
-                    System.out.println(c2);
-                    c=c2;
-                }
-                case OTTO -> {
-                    Carta c2 = giocatori.get(turno).get(7);
-                    c2.scopri();
-                    if(c.valore.equals(c2.valore)){
-                        pilaScarti.add(c);
-                        turno+=1;
-                        continue;
-                    }
-                    giocatori.get(turno).set(7, c);
-                    System.out.println(giocatori.get(turno));
-                    System.out.println(c2);
-                    c=c2;
-                }
-                case NOVE -> {
-                    Carta c2 = giocatori.get(turno).get(8);
-                    c2.scopri();
-                    if(c.valore.equals(c2.valore)){
-                        pilaScarti.add(c);
-                        turno+=1;
-                        continue;
-                    }
-                    giocatori.get(turno).set(8, c);
-                    System.out.println(giocatori.get(turno));
-                    System.out.println(c2);
-                    c=c2;
-                }
-                case DIECI -> {
-                    Carta c2 = giocatori.get(turno).get(9);
-                    c2.scopri();
-                    if(c.valore.equals(c2.valore)){
-                        pilaScarti.add(c);
-                        turno+=1;
-                        continue;
-                    }
-                    giocatori.get(turno).set(9, c);
-                    System.out.println(giocatori.get(turno));
-                    System.out.println(c2);
-                    c=c2;
+                    c = c2;
                 }
                 case JACK, REGINA -> {
                     pilaScarti.add(c);
-                    turno+=1;
-
+                    currentPlayer += 1;
+                    c = mazzo.pesca();
+                    c.scopri();
                 }
-                //case RE -> giocatori.get(turno).add(1,c);
-
-                //case JOKER1 -> giocatori.get(turno).add(1,c);
-                //case JOKER2 -> giocatori.get(turno).add(1,c);
-
+                case RE -> {
+                    OptionalInt index = IntStream.range(0, hand.size()).filter(i -> hand.get(i).isCoperta()).findFirst();
+                    if (index.isPresent()) {
+                        int indice = index.getAsInt();
+                        Carta c2 = hand.get(indice);
+                        c2.scopri();
+                        hand.set(indice, c);
+                        c = c2;
+                    } else {
+                        pilaScarti.add(c);
+                        currentPlayer += 1;
+                        c = mazzo.pesca();
+                        c.scopri();
+                    }
+                }
             }
         }
     }
 
+    public boolean gameOver(){
+        return IntStream.range(1, playerHand.get(currentPlayer).size()).allMatch(i-> playerHand.get(currentPlayer).get(i-1).valore.ordinal() < playerHand.get(currentPlayer).get(i).valore.ordinal());
+    }
+
 
     public static void main(String[] args) {
-        new Gioco(2);
+        Giocatore[] players;
+        Giocatore g1 = new Giocatore("G1");
+        Giocatore g2 = new Giocatore("G2");
+        players = new Giocatore[]{g1, g2};
+        Gioco game = new Gioco(players);
+        game.start(game);
     }
 }
 
