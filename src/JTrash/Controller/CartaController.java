@@ -1,41 +1,20 @@
 package JTrash.Controller;
 
 import JTrash.Model.Carta;
+import JTrash.View.HandPanel;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.Observable;
-import java.util.Observer;
-
-public class CartaController implements Observer {
-    private Carta c;
-    private JLabel cartaGUI;
-
-    public CartaController(Carta c, JLabel cartaGUI){
-        this.c = c;
-        this.cartaGUI = cartaGUI;
-        c.addObserver(this);
-    }
-
-    public void updateView(){
-        if(c!=null){
-        cartaGUI.setIcon(c.getImage());
-        cartaGUI.setText("");
-        }
-        else{
-            cartaGUI.setIcon(null);
-            cartaGUI.setText("Nessuna carta");
-        }
-    }
-
-
-    public void setView(){
-        cartaGUI.setPreferredSize(new Dimension(124,113));
-    }
-    @Override
-    public void update(Observable o, Object arg) {
-        if(o instanceof Carta){
-            updateView();
-        }
+/**
+ * Questa classe rappresenta il controller per la classe Carta.
+ */
+public class CartaController {
+    /**
+     * Costruttore della classe CartaController.
+     * Aggiunge un observer alla carta.
+     *
+     * @param carta     la carta da osservare
+     * @param handPanel il pannello della mano
+     */
+    public CartaController(Carta carta, HandPanel handPanel) {
+        carta.addObserver(handPanel);
     }
 }

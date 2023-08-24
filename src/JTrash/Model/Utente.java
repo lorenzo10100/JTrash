@@ -1,17 +1,15 @@
 package JTrash.Model;
 
-import javax.swing.*;
 import java.io.Serializable;
 
 
 /**
  * Classe che modella e permette di costruire un
  * giocatore umano con nome, avatar e statistiche
- *
  */
 public class Utente extends Giocatore implements Serializable {
-    private static int id;
-    private String password;
+    private static final long serialVersionUID = 1L;
+	private String password;
     private String avatar;
     private int vinte;
     private int perse;
@@ -28,9 +26,13 @@ public class Utente extends Giocatore implements Serializable {
         vinte = 0;
         perse = 0;
         livello = "Livello: 0";
-        id++;
     }
-    public Utente(){}; // costruttore vuoto per la serializzazione
+
+    public Utente() {
+    }
+
+    ; // costruttore vuoto per la serializzazione
+
     /**
      * Metodo che restituisce il numero di partite giocate
      *
@@ -54,13 +56,6 @@ public class Utente extends Giocatore implements Serializable {
         perse++;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     /**
      * Metodo che restituisce la password dell'utente
@@ -126,5 +121,33 @@ public class Utente extends Giocatore implements Serializable {
         int xp_sconfitta = getPerse() * 10;
         int totale_xp = xp_vittoria + xp_sconfitta;
         livello += (int) (totale_xp / 100);
+    }
+
+
+    /**
+     * Imposta il livello dell'utente.
+     *
+     * @param livello il livello da impostare
+     */
+    public void setLivello(String livello) {
+        this.livello = livello;
+    }
+
+    /**
+     * Imposta il numero di vittorie dell'utente.
+     *
+     * @param vinte il numero di vittorie da impostare
+     */
+    public void setVittorie(int vinte) {
+        this.vinte = vinte;
+    }
+
+    /**
+     * Imposta il numero di sconfitte dell'utente.
+     *
+     * @param perse il numero di sconfitte da impostare
+     */
+    public void setSconfitte(int perse) {
+        this.perse = perse;
     }
 }

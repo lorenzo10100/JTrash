@@ -1,6 +1,5 @@
 package JTrash.Model;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -9,44 +8,57 @@ import java.util.Observer;
 /**
  * classe che rappresenta una carta da gioco
  */
+
+/**
+ * Questa classe rappresenta una carta da gioco.
+ * Ogni carta ha un seme e un valore, può essere scoperta o coperta,
+ * e può avere un'immagine associata.
+ */
 public class Carta extends Observable {
+
     /**
-     * enum che rappresenta i semi delle carte
+     * Enumerazione che rappresenta i semi delle carte.
      */
     private Seme seme;
 
     /**
-     * enum che rappresenta i valori delle carte
+     * Enumerazione che rappresenta i valori delle carte.
      */
     private Valore valore;
 
     private boolean coperta;
-    private ImageIcon image;
+    private String image;
     private ArrayList<Observer> observers;
-
 
     /**
      * Costruttore della classe Carta.
      * Permette di creare un oggetto di tipo Carta, passando come parametri il valore e il seme della carta.
-     * @param valore : valore della carta
-     * @param seme : seme della carta
+     *
+     * @param valore il valore della carta
+     * @param seme   il seme della carta
      */
-    public Carta(Valore valore, Seme seme){
+    public Carta(Valore valore, Seme seme) {
         this.valore = valore;
         this.seme = seme;
         coperta = true;
         image = getImage();
         setImage(image);
+
+        observers = new ArrayList<>();
     }
 
     /**
-     * Metodo che permette di verificare se la carta è scoperta o meno.
+     * Verifica se la carta è scoperta.
+     *
      * @return true se la carta è scoperta, false altrimenti
      */
-    private boolean isScoperta(){return !coperta;}
+    public boolean isScoperta() {
+        return !coperta;
+    }
 
     /**
-     * Metodo che permette di verificare se la carta è coperta o meno.
+     * Verifica se la carta è coperta.
+     *
      * @return true se la carta è coperta, false altrimenti
      */
     public boolean isCoperta() {
@@ -54,61 +66,79 @@ public class Carta extends Observable {
     }
 
     /**
-     * Metodo che permette di scoprire una carta.
+     * Scopre la carta.
      */
-    public void scopri(){
+    public void scopri() {
         coperta = false;
         setChanged();
         notifyObservers();
     }
 
     /**
-     * Metodo che permette di coprire una carta.
+     * Copre la carta.
      */
-    public void copri(){coperta = true;}
+    public void copri() {
+        coperta = true;
+    }
 
     /**
-     * Metodo che rappresenta in stringa una carta.
-     * @return stringa che rappresenta la carta
+     * Restituisce una rappresentazione testuale della carta.
+     *
+     * @return una stringa che rappresenta la carta
      */
     @Override
-    public String toString(){
+    public String toString() {
         StringBuilder sb = new StringBuilder();
-        if(isScoperta()){
-            sb.append(valore.name()).append(" di ").append(seme.name());}
-        else {sb.append("COPERTA");}
+        if (isScoperta()) {
+            sb.append(valore.name()).append(" di ").append(seme.name());
+        } else {
+            sb.append("COPERTA");
+        }
         return sb.toString();
     }
 
     /**
-     * Metodo che permette di ottenere l'immagine di una carta.
-     * @return immagine della carta
+     * Restituisce il percorso dell'immagine associata alla carta.
+     *
+     * @return il percorso dell'immagine della carta
      */
-    public ImageIcon getImage(){
-        String path = "src/sprites";
+    public String getImage() {
+        String path = "/sprites";
         String fileName = "";
-        if(isScoperta()){
+        if (isScoperta()) {
             fileName = valore.name() + "-" + seme.name() + ".png";
-        }
-        else {
+        } else {
             fileName = "COPERTA.png";
         }
-        return new ImageIcon(path + "/" + fileName);
+        return path + "/" + fileName;
     }
 
     /**
-     * Metodo che permette di settare l'immagine di una carta.
-     * @param image : immagine della carta
+     * Imposta l'immagine associata alla carta.
+     *
+     * @param image l'immagine della carta
      */
-    public void setImage(ImageIcon image){
+    public void setImage(String image) {
         this.image = image;
+        setChanged();
+        notifyObservers();
     }
 
+    /**
+     * Restituisce il valore della carta.
+     *
+     * @return il valore della carta
+     */
     public Valore getValore() {
         return valore;
     }
 
-    public void addObserver(Observer o){
+    /**
+     * Aggiunge un osservatore alla lista degli osservatori della carta.
+     *
+     * @param o l'osservatore da aggiungere
+     */
+    public void addObserver(Observer o) {
         observers.add(o);
     }
 }

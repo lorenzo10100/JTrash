@@ -6,9 +6,9 @@ import java.util.Random;
 import java.util.stream.IntStream;
 
 /**
- *  Classe che si occupa della gestione del gioco.
- *  Viene gestita la logica del gioco di carte Trash e vengono gestite le
- *  varie regole del gioco.
+ * Classe che si occupa della gestione del gioco.
+ * Viene gestita la logica del gioco di carte Trash e vengono gestite le
+ * varie regole del gioco.
  */
 
 public class Gioco {
@@ -42,8 +42,8 @@ public class Gioco {
     /**
      * Costruttore della sessione di gioco, al suo interno inoltre vi è tutta la logica
      * che concerne il gioco Trash e tutte le varie casistiche e regole di gioco.
+     *
      * @param players Giocatore[] : rappresenta un array di giocatori per la sessione di gioco(massimo 4)
-     *                    se players.length = 1 oppure players.length > 4 viene sollevata un'eccezione
      */
     public Gioco(ArrayList<Giocatore> players) {
         this.players = players;
@@ -70,8 +70,6 @@ public class Gioco {
      * Metodo che si occupa di iniziare la sessione di gioco
      */
     public Carta start() {
-        //un gioco viene inizializzato con una lista di giocatori
-        //il giocatore iniziale e' scelto casualmente
         Carta c = mazzo.pesca();
         c.scopri();
         return c;
@@ -80,10 +78,12 @@ public class Gioco {
     /**
      * Metodo che si occupa di gestire la fine del gioco.
      * Controlla se almeno in una mano, le carte sono ordinate in maniera crescente
+     *
      * @return boolean : true se il gioco è finito, false altrimenti
      */
-    public boolean gameOver(){
-        return IntStream.range(1, getMano().size()).allMatch(i -> getGiocatore().getCartaMano(i-1).getValore().ordinal() < getGiocatore().getCartaMano(i).getValore().ordinal());
+
+    public boolean gameOver() {
+        return IntStream.range(1, getMano().size()).allMatch(i -> getGiocatore().getCartaMano(i - 1).isScoperta() && getGiocatore().getCartaMano(i).isScoperta());
     }
 
     /**
@@ -91,8 +91,8 @@ public class Gioco {
      * Se il mazzo è vuoto, viene copiata la pila degli scarti nel mazzo, viene coperto il mazzo
      * e viene mischiato.
      */
-    public void swapDeck(){
-        if(mazzo.isEmpty()){
+    public void swapDeck() {
+        if (mazzo.isEmpty()) {
             mazzo.copia(pilaScarti);
             mazzo.copriMazzo();
             mazzo.mischia();
@@ -105,41 +105,56 @@ public class Gioco {
      * Viene incrementato il giocatore corrente, se il giocatore corrente è l'ultimo
      * viene settato a 0.
      */
-    public void nextPlayer(){currentPlayer = (currentPlayer + 1) % players.size();}
+    public void nextPlayer() {
+        currentPlayer = (currentPlayer + 1) % players.size();
+    }
 
     /**
      * Metodo che si occupa di gestire il giocatore corrente.
+     *
      * @return Giocatore : rappresenta il giocatore corrente
      */
-    public Giocatore getGiocatore(){
+    public Giocatore getGiocatore() {
         return players.get(currentPlayer);
     }
 
 
     /**
      * Metodo che fornisce la mano del giocatore corrente
+     *
      * @return ArrayList<Carta> : rappresenta la mano del giocatore corrente
      */
-    public Mano getMano(){
+    public Mano getMano() {
         return players.get(currentPlayer).getMano();
     }
-    
+
 
     /**
      * Metodo che si occupa dello scambio di una carta all'interno della mano del giocatore.
      * Esso controlla il valore della carta passata in input con uno switch e la mette al posto corretto, scartando in caso la carta al posto i
-     * @param c: rappresenta la carta che pescata dal mazzo
+     *
+     * @param c: rappresenta la carta che viene pescata dal mazzo
      */
     public void gioco(Carta c) {
         while (!gameOver()) {
-            if(mazzo.isEmpty())
-                swapDeck();
-            swap(c);
+            Giocatore giocatoreCorrente = getGiocatore();
+            // Esegui il turno del giocatore corrente usando il metodo swap
+            Carta cartaScartata = swap(c);
+            // Aggiorna la carta attuale con la carta scartata
+            c = cartaScartata != null ? cartaScartata : getMazzo().pesca();
+            if (c.isCoperta())
+                c.scopri();
         }
         System.out.println("Il giocatore " + getGiocatore().getUsername() + " ha vinto!");
     }
 
-    public Carta swap(Carta c){
+    /**
+     * Metodo che si occupa dello scambio di una carta all'interno della mano del giocatore.
+     *
+     * @param c : rappresenta la carta da scambiare
+     * @return Carta : rappresenta la carta scambiata
+     */
+    public Carta swap(Carta c) {
         switch (c.getValore()) {
             default -> {
                 Carta temp = getGiocatore().getCartaMano(c.getValore().ordinal());
@@ -147,8 +162,7 @@ public class Gioco {
                 if (c.getValore().equals(temp.getValore())) {
                     pilaScarti.aggiungi(c);
                     nextPlayer();
-                }
-                else {
+                } else {
                     getMano().set(c.getValore().ordinal(), c);
                     return temp;
                 }
@@ -165,8 +179,7 @@ public class Gioco {
                     temp.scopri();
                     getMano().set(index, c);
                     return temp;
-                }
-                else {
+                } else {
                     pilaScarti.aggiungi(c);
                     nextPlayer();
                 }
@@ -175,21 +188,22 @@ public class Gioco {
         return null;
     }
 
+    /**
+     * Metodo che si occupa di prendere il mazzo della sessione di gioco corrente.
+     *
+     * @return Mazzo : rappresenta il mazzo
+     */
     public Mazzo getMazzo() {
         return mazzo;
     }
 
-
+    /**
+     * Metodo che si occupa di prendere la pila degli scarti della sessione di gioco corrente.
+     *
+     * @return Mazzo : rappresenta la pila degli scarti
+     */
     public Mazzo getScarti() {
         return pilaScarti;
-    }
-
-    public static void main(String[] args) {
-        Utente user = new Utente("Giovanni", "1234");
-        ArrayList<Giocatore> players = new ArrayList<>();
-        players.add(new Giocatore("Luigi"));
-        players.add(user);
-        Gioco game = new Gioco(players);
     }
 }
 

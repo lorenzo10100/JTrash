@@ -1,60 +1,80 @@
 package JTrash.Model;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-public class Mano extends Observable {
+
+/**
+ * Questa classe rappresenta una mano di carte.
+ */
+public class Mano {
+
     private ArrayList<Carta> carte;
-    private List<Observer> observers;
 
-    public Mano(){
+    /**
+     * Costruttore della classe Mano.
+     * Inizializza una mano vuota di carte.
+     */
+    public Mano() {
         carte = new ArrayList<>();
-        observers = new ArrayList<>();
     }
 
-    public void addCarta(Carta c){
-        carte.add(c);
-    }
-
-    public Carta getCarta(int i){
+    /**
+     * Restituisce una carta dalla mano in base all'indice specificato.
+     *
+     * @param i l'indice della carta nella mano
+     * @return la carta nella posizione specificata
+     */
+    public Carta getCarta(int i) {
         return carte.get(i);
     }
 
-    public ArrayList<Carta> getCarte(){
+    /**
+     * Restituisce l'elenco delle carte presenti nella mano.
+     *
+     * @return l'elenco delle carte nella mano
+     */
+    public ArrayList<Carta> getCarte() {
         return carte;
     }
 
-    public int size(){
+    /**
+     * Restituisce il numero di carte nella mano.
+     *
+     * @return il numero di carte nella mano
+     */
+    public int size() {
         return carte.size();
     }
 
-    public void set(int i, Carta c){
+    /**
+     * Imposta una carta nella mano in base all'indice specificato.
+     *
+     * @param i l'indice della carta nella mano
+     * @param c la carta da impostare
+     */
+    public void set(int i, Carta c) {
         carte.set(i, c);
-        setChanged();
-        notifyObservers(carte);
     }
 
-    public void setCarte(ArrayList<Carta> carte){
+    /**
+     * Imposta l'elenco delle carte nella mano.
+     *
+     * @param carte l'elenco delle carte da impostare
+     */
+    public void setCarte(ArrayList<Carta> carte) {
         this.carte = carte;
     }
 
+    /**
+     * Restituisce una rappresentazione testuale della mano.
+     *
+     * @return una stringa che rappresenta la mano
+     */
     @Override
-    public String toString(){
+    public String toString() {
         return carte.toString();
     }
-
-    @Override
-    public void addObserver(Observer o){
-        observers.add(o);
-    }
-
-    @Override
-    public void notifyObservers(Object arg){
-        for(Observer o: observers){
-            o.update(this, arg);
-        }
-    }
-
 }
+
